@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Fake Data Generator</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        table { border-collapse: collapse; width: 100%; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+        .controls { margin-bottom: 20px; padding: 15px; background-color: #e9ecef; border-radius: 5px; }
+    </style>
+</head>
+<body>
+    <h2>Fake User Generator (Task 6_DATA)</h2>
+
+    <div class="controls">
+        <form method="GET" action="/">
+            <label>Region:
+                <select name="locale">
+                    <option value="en_US" {% if locale == 'en_US' %}selected{% endif %}>English (USA)</option>
+                    <option value="de_DE" {% if locale == 'de_DE' %}selected{% endif %}>German (Germany)</option>
+                </select>
+            </label>
+
+            <label style="margin-left: 15px;">Seed:
+                <input type="number" name="seed" value="{{ seed }}" required>
+            </label>
+
+            <input type="hidden" name="batch_idx" value="1">
+            <button type="submit" style="margin-left: 15px;">Apply / Generate New Data</button>
+        </form>
+    </div>
+
+    <table>
+        <tr>
+            <th>#</th>
+            <th>Full Name</th>
+            <th>Address</th>
+            <th>Phone</th>
+            <th>Email</th>
+            <th>Lat / Lng</th>
+            <th>Height</th>
+            <th>Eye Color</th>
+        </tr>
+        {% for user in users %}
+        <tr>
+            <td>{{ (batch_idx - 1) * 10 + loop.index }}</td>
+            <td>{{ user[0] }}</td>
+            <td>{{ user[1] }}</td>
+            <td>{{ user[2] }}</td>
+            <td>{{ user[3] }}</td>
+            <td>{{ user[4]|round(4) }}, {{ user[5]|round(4) }}</td>
+            <td>{{ user[6] }} cm</td>
+            <td>{{ user[7] }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    <div style="margin-top: 20px;">
+        <form method="GET" action="/" style="display:inline;">
+            <input type="hidden" name="locale" value="{{ locale }}">
+            <input type="hidden" name="seed" value="{{ seed }}">
+            <input type="hidden" name="batch_idx" value="{{ batch_idx + 1 }}">
+            <button type="submit">Load Next Batch (Page {{ batch_idx + 1 }})</button>
+        </form>
+    </div>
+</body>
+</html>
