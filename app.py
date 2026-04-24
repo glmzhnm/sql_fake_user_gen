@@ -1,12 +1,12 @@
 from flask import Flask, render_template, request
 import psycopg2
+import os
 
 app = Flask(__name__)
 
-
 def get_db_connection():
-    return psycopg2.connect(host="localhost", database="task6", user="postgres", password="postgres")
-
+    db_url = os.environ.get('DATABASE_URL', 'postgresql://task6_vvyr_user:h353qcke9sh9sX5wf2VrDFkWX7KNGPca@dpg-d7lj80reo5us73dlqua0-a.ohio-postgres.render.com/task6_vvyr')
+    return psycopg2.connect(db_url)
 
 @app.route('/')
 def index():
@@ -15,20 +15,21 @@ def index():
     batch_idx = int(request.args.get('batch_idx', 1))
     batch_size = int(request.args.get('batch_size', 10))
 
-    conn = get_db_connection()
-    cursor = conn.cursor()
-
-    cursor.execute(
-        "SELECT * FROM generate_fake_users(%s, %s, %s, %s)",
-        (seed, locale, batch_idx, batch_size)
-    )
-    users = cursor.fetchall()
-
-    cursor.close()
-    conn.close()
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute(
+            "SELECT * FROM generate_fake_users(%s, %s, %s, %s)",
+            (seed, locale, batch_idx, batch_size)
+        )
+        users = cursor.fetchall()
+        cursor.close()
+        conn.close()
+    except Exception as e:
+        return f"Database connection error: {e}"
 
     return render_template('index.html', users=users, locale=locale, seed=seed, batch_idx=batch_idx)
 
-
 if __name__ == '__main__':
-    app.run(debug=True)
+    port = int(os.environ.get('PORT', 5001))
+    app.run(host='0.0.0.0', port=port)
